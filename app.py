@@ -1,5 +1,4 @@
-from flask import session
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, session
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
 from ai_scheduler import recommend_time
@@ -7,6 +6,8 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime
 
 app = Flask(__name__)
+app.secret_key = "your_secret_key"
+
 
 # 🔗 SQLite DB connection
 def get_db():
@@ -18,30 +19,31 @@ def get_db():
 # 🔧 Create table if not exists
 def init_db():
     conn = get_db()
+
+    # TASK TABLE
     conn.execute("""
         CREATE TABLE IF NOT EXISTS tasks (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT,
-            priority TEXT,
-            status TEXT,
-            recommended_time TEXT,
-            task_date TEXT,
-            user_time TEXT
-        )
-    """)
-    CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT UNIQUE,
-    password TEXT
+    title TEXT,
+    priority TEXT,
+    status TEXT,
+    recommended_time TEXT,
+    task_date TEXT,
+    user_time TEXT,
+    user_id INTEGER
+)
+""")
+    # USER TABLE ✅
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE,
+            password TEXT
         )
     """)
-    
+
     conn.commit()
     conn.close()
-    conn.execute("""
-
-
-init_db()
 
 @app.route('/login', methods=['GET','POST'])
 def login():
@@ -54,8 +56,10 @@ def login():
         conn.close()
 
         if user and check_password_hash(user["password"], password):
-            session['user_id'] = user["id"]   # 🔥 store user
+            session['user_id'] = user["id"]
             return redirect('/')
+        else:
+            return "Invalid username or password"
 
     return render_template('login.html')
 
@@ -66,9 +70,16 @@ def signup():
         password = generate_password_hash(request.form['password'])
 
         conn = get_db()
-        conn.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, password))
-        conn.commit()
-        conn.close()
+        try:
+            conn.execute(
+                "INSERT INTO users (username, password) VALUES (?, ?)",
+                (username, password)
+            )
+            conn.commit()
+        except:
+            return "Username already exists"
+        finally:
+            conn.close()
 
         return redirect('/login')
 
@@ -81,7 +92,10 @@ def home():
         return redirect('/login')   # 🔥 force login
 
     conn = get_db()
-    tasks = conn.execute("SELECT * FROM tasks WHERE status='pending'").fetchall()
+    tasks = conn.execute(
+    "SELECT * FROM tasks WHERE status='pending' AND user_id=?",
+    (session['user_id'],)
+).fetchall()
     conn.close()
 
     return render_template('index.html', tasks=tasks)
@@ -95,7 +109,7 @@ def logout():
 # 🔔 Reminder System
 def check_reminders():
     conn = get_db()
-    tasks = conn.execute("SELECT * FROM tasks").fetchall()
+    tasks = conn.execute("SELECT * FROM tasks WHERE user_id=?").fetchall()
     conn.close()
 
     now = datetime.now()
@@ -117,6 +131,8 @@ def check_reminders():
 # ➕ Add Task
 @app.route('/add_task', methods=['POST'])
 def add_task():
+    if 'user_id' not in session:   # 🔥 ADD THIS
+        return redirect('/login')
     title = request.form['title']
     priority = request.form['priority']
     task_date = request.form.get('task_date') or None
@@ -134,9 +150,9 @@ def add_task():
 
     conn = get_db()
     conn.execute(
-        "INSERT INTO tasks (title, priority, status, recommended_time, task_date, user_time) VALUES (?, ?, ?, ?, ?, ?)",
-        (title, priority, "pending", recommended, task_date, user_time)
-    )
+        "INSERT INTO tasks (title, priority, status, recommended_time, task_date, user_time, user_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        (title, priority, "pending", recommended, task_date, user_time, session['user_id'])
+)
     conn.commit()
     conn.close()
 
@@ -146,8 +162,13 @@ def add_task():
 # ✅ Complete Task
 @app.route('/complete/<int:id>')
 def complete_task(id):
+    if 'user_id' not in session:
+        return redirect('/login')
     conn = get_db()
-    conn.execute("UPDATE tasks SET status='completed' WHERE id=?", (id,))
+    conn.execute(
+    "UPDATE tasks SET status='completed' WHERE id=? AND user_id=?",
+    (id, session['user_id'])
+)
     conn.commit()
     conn.close()
     return redirect('/')
@@ -156,8 +177,13 @@ def complete_task(id):
 # 🔄 Restore Task
 @app.route('/restore/<int:id>')
 def restore_task(id):
+    if 'user_id' not in session:
+        return redirect('/login')
     conn = get_db()
-    conn.execute("UPDATE tasks SET status='pending' WHERE id=?", (id,))
+    conn.execute(
+    "UPDATE tasks SET status='pending' WHERE id=? AND user_id=?",
+    (id, session['user_id'])
+)
     conn.commit()
     conn.close()
     return redirect('/history')
@@ -166,8 +192,13 @@ def restore_task(id):
 # 📜 History Page
 @app.route('/history')
 def history():
+    if 'user_id' not in session:
+        return redirect('/login')
     conn = get_db()
-    tasks = conn.execute("SELECT * FROM tasks WHERE status='completed' ORDER BY task_date DESC").fetchall()
+    tasks = conn.execute(
+    "SELECT * FROM tasks WHERE status='completed' AND user_id=? ORDER BY task_date DESC",
+    (session['user_id'],)
+).fetchall()
     conn.close()
 
     grouped_tasks = {}
@@ -186,8 +217,13 @@ def history():
 # 🗑 Delete Task
 @app.route('/delete/<int:id>')
 def delete_task(id):
+    if 'user_id' not in session:
+        return redirect('/login')
     conn = get_db()
-    conn.execute("DELETE FROM tasks WHERE id=?", (id,))
+    conn.execute(
+    "DELETE FROM tasks WHERE id=? AND user_id=?",
+    (id, session['user_id'])
+)
     conn.commit()
     conn.close()
 
@@ -197,8 +233,13 @@ def delete_task(id):
 # ✏️ Edit Task Page
 @app.route('/edit/<int:id>')
 def edit_task(id):
+    if 'user_id' not in session:
+        return redirect('/login')
     conn = get_db()
-    task = conn.execute("SELECT * FROM tasks WHERE id=?", (id,)).fetchone()
+    task = conn.execute(
+    "SELECT * FROM tasks WHERE id=? AND user_id=?",
+    (id, session['user_id'])
+).fetchone()
     conn.close()
     return render_template('edit.html', task=task)
 
@@ -206,6 +247,8 @@ def edit_task(id):
 # 💾 Update Task
 @app.route('/update/<int:id>', methods=['POST'])
 def update_task(id):
+    if 'user_id' not in session:
+        return redirect('/login')
     title = request.form['title']
     priority = request.form['priority']
     task_date = request.form.get('task_date') or None
@@ -216,14 +259,14 @@ def update_task(id):
         selected_date = datetime.strptime(task_date, "%Y-%m-%d").date()
 
         if selected_date < today:
-            return "❌ Cannot select past date"
+            return "Cannot select past date"
 
     conn = get_db()
     conn.execute("""
-        UPDATE tasks 
-        SET title=?, priority=?, task_date=?, user_time=? 
-        WHERE id=?
-    """, (title, priority, task_date, user_time, id))
+    UPDATE tasks 
+    SET title=?, priority=?, task_date=?, user_time=? 
+    WHERE id=? AND user_id=?
+""", (title, priority, task_date, user_time, id, session['user_id']))
 
     conn.commit()
     conn.close()
@@ -236,9 +279,6 @@ scheduler = BackgroundScheduler()
 scheduler.add_job(check_reminders, 'interval', seconds=30)
 
 if __name__ == "__main__":
+    init_db()
     scheduler.start()
-
-
-# 🚀 Run App
-if __name__ == "__main__":
     app.run(debug=True)

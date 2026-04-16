@@ -3,33 +3,69 @@
 <head>
     <title>Signup</title>
 </head>
-<body style="font-family: Arial; background: #f4f4f4;">
 
-    <div style="
-        width: 300px;
-        margin: 100px auto;
-        padding: 20px;
-        background: white;
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        text-align: center;
-    ">
+<body style="
+    margin:0;
+    font-family: Arial, sans-serif;
+    background: #f0f2f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+">
 
-<h2>Signup</h2>
-<form method="POST">
-    <input name="username" placeholder="Username" required><br>
-    <input name="password" type="password" placeholder="Password" required><br>
-    <button style="
-                padding: 10px 20px;
-                background: #007bff;
-                color: white;
-                border: none;
-                border-radius: 5px;
-                cursor: pointer;
-            ">Signup</button>
-</form>
+<div style="
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    width: 320px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+">
 
-<p>Already have an account? <a href="/login">Login</a></p>
+    <h2 style="margin-bottom: 20px;">Signup</h2>
+
+    <form method="POST">
+
+        <input name="username" placeholder="Username" required
+        style="
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        ">
+
+        <input name="password" type="password" placeholder="Password" required
+        style="
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        ">
+
+        <button style="
+            width: 100%;
+            padding: 10px;
+            background: #1877f2;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+        ">
+            Signup
+        </button>
+
+    </form>
+
+    <p style="margin-top: 15px;">
+        Already have an account?
+        <a href="/login">Login</a>
+    </p>
+
+</div>
 
 </body>
 </html>

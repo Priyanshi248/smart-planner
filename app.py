@@ -18,10 +18,8 @@ mysql = MySQL(app)
 # 🏠 Home Page
 @app.route('/')
 def home():
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT * FROM tasks WHERE status='pending'")
-    tasks = cur.fetchall()
-    cur.close()
+    def home():
+    tasks = []
     return render_template('index.html', tasks=tasks)
 
 

@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect
+from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
 from ai_scheduler import recommend_time
 from apscheduler.schedulers.background import BackgroundScheduler

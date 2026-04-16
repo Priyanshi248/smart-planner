@@ -10,4 +10,4 @@ def recommend_time(priority):
     else:
         recommended = now + timedelta(hours=6)
 
-    return recommended.strftime("%Y-%m-%d %H:%M")
+    return recommended.strftime("%I:%M %p")

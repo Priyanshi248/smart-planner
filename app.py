@@ -184,9 +184,11 @@ def update_task(id):
 # ⏰ Background Scheduler
 scheduler = BackgroundScheduler()
 scheduler.add_job(check_reminders, 'interval', seconds=30)
-scheduler.start()
+
+if __name__ == "__main__":
+    scheduler.start()
 
 
 # 🚀 Run App
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)

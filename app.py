@@ -28,11 +28,49 @@ def init_db():
             user_time TEXT
         )
     """)
+    CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT UNIQUE,
+    password TEXT
+        )
+    """)
+    
     conn.commit()
     conn.close()
+    conn.execute("""
+
 
 init_db()
 
+@app.route('/login', methods=['GET','POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        conn = get_db()
+        user = conn.execute("SELECT * FROM users WHERE username=?", (username,)).fetchone()
+        conn.close()
+
+        if user and check_password_hash(user["password"], password):
+            return redirect('/')  # for now just redirect
+
+    return render_template('login.html')
+
+@app.route('/signup', methods=['GET','POST'])
+def signup():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = generate_password_hash(request.form['password'])
+
+        conn = get_db()
+        conn.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, password))
+        conn.commit()
+        conn.close()
+
+        return redirect('/login')
+
+    return render_template('signup.html')
 
 # 🏠 Home Page
 @app.route('/')

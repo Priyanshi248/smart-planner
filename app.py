@@ -13,9 +13,6 @@ if os.path.exists("database.db"):
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
 
-init_db()   # 🔥 ADD HERE
-
-
 # 🔗 SQLite DB connection
 def get_db():
     conn = sqlite3.connect("database.db")
@@ -51,6 +48,8 @@ def init_db():
 
     conn.commit()
     conn.close()
+
+init_db()   # 🔥 ADD HERE
 
 @app.route('/login', methods=['GET','POST'])
 def login():
@@ -289,6 +288,5 @@ scheduler = BackgroundScheduler()
 scheduler.add_job(check_reminders, 'interval', seconds=30)
 
 if __name__ == "__main__":
-    init_db()
     scheduler.start()
     app.run(debug=True)

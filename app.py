@@ -49,6 +49,9 @@ init_db()   # 🔥 ADD HERE
 
 @app.route('/login', methods=['GET','POST'])
 def login():
+    if 'user_id' in session:   # 🔥 ADD THIS
+        return redirect('/')   # already logged in
+
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
@@ -67,6 +70,9 @@ def login():
 
 @app.route('/signup', methods=['GET','POST'])
 def signup():
+    if 'user_id' in session:   # 🔥 ADD THIS
+        return redirect('/')
+
     if request.method == 'POST':
         username = request.form['username']
         password = generate_password_hash(request.form['password'])

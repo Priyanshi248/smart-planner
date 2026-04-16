@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect
 import sqlite3
-from utils.ai_scheduler import recommend_time
+from ai_scheduler import recommend_time
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime
 

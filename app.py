@@ -4,9 +4,16 @@ import sqlite3
 from ai_scheduler import recommend_time
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime
+import os
+
+# 🔴 TEMPORARY: reset database
+if os.path.exists("database.db"):
+    os.remove("database.db")
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
+
+init_db()   # 🔥 ADD HERE
 
 
 # 🔗 SQLite DB connection
@@ -89,14 +96,17 @@ def signup():
 @app.route('/')
 def home():
     if 'user_id' not in session:
-        return redirect('/login')   # 🔥 force login
+        return redirect('/login')
 
-    conn = get_db()
-    tasks = conn.execute(
-    "SELECT * FROM tasks WHERE status='pending' AND user_id=?",
-    (session['user_id'],)
-).fetchall()
-    conn.close()
+    try:
+        conn = get_db()
+        tasks = conn.execute(
+            "SELECT * FROM tasks WHERE status='pending' AND user_id=?",
+            (session['user_id'],)
+        ).fetchall()
+        conn.close()
+    except Exception as e:
+        return f"Error: {str(e)}"   # 🔥 THIS WILL SHOW REAL ERROR
 
     return render_template('index.html', tasks=tasks)
 

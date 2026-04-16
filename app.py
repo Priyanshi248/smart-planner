@@ -1,3 +1,4 @@
+from flask import session
 from flask import Flask, render_template, request, redirect
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
@@ -53,7 +54,8 @@ def login():
         conn.close()
 
         if user and check_password_hash(user["password"], password):
-            return redirect('/')  # for now just redirect
+            session['user_id'] = user["id"]   # 🔥 store user
+            return redirect('/')
 
     return render_template('login.html')
 
@@ -75,10 +77,19 @@ def signup():
 # 🏠 Home Page
 @app.route('/')
 def home():
+    if 'user_id' not in session:
+        return redirect('/login')   # 🔥 force login
+
     conn = get_db()
     tasks = conn.execute("SELECT * FROM tasks WHERE status='pending'").fetchall()
     conn.close()
+
     return render_template('index.html', tasks=tasks)
+
+@app.route('/logout')
+def logout():
+    session.pop('user_id', None)
+    return redirect('/login')
 
 
 # 🔔 Reminder System

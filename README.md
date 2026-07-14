@@ -1,135 +1,171 @@
-# Car MPG Predictor
+# AI-Powered Smart Planner
 
-Predict the fuel efficiency (Miles Per Gallon - MPG) of a car using Machine Learning.
+An intelligent task management web application that helps users organize their daily activities with AI-powered scheduling recommendations, automated reminders, and secure user authentication.
 
-This project uses the classic Automobile MPG dataset to train regression models capable of estimating a vehicle's fuel efficiency based on its technical specifications. After experimenting with multiple algorithms, a Random Forest Regressor was selected as the final model due to its superior predictive performance.
+Built using **Flask**, **SQLite**, and **APScheduler**, the application provides each user with a personalized dashboard where tasks can be created, managed, and intelligently prioritized.
+
+**Live Demo:** https://smart-planner-nvta.onrender.com/
 
 ---
 
 ## Features
 
-- Predicts vehicle MPG using technical specifications
-- Data cleaning and preprocessing pipeline
-- Exploratory Data Analysis (EDA)
-- Model comparison
-  - Linear Regression
-  - Random Forest Regressor
-- Performance evaluation using multiple regression metrics
-- Model serialization using Joblib
-- Ready for deployment with Streamlit
+- Secure user authentication (Signup/Login)
+- Personalized dashboards with user-specific task management
+- Create, update, delete, and restore tasks
+- Mark tasks as completed
+- AI-powered task scheduling recommendations based on priority
+- Automated reminder system using APScheduler
+- Task history and status tracking
+- Password hashing and session-based authentication
+- Deployed on Render
 
 ---
 
 ## Tech Stack
 
+### Backend
+
 - Python
-- Pandas
-- NumPy
-- Scikit-learn
-- Matplotlib
-- Seaborn
-- Joblib
+- Flask
+
+### Database
+
+- SQLite
+
+### Frontend
+
+- HTML
+- CSS
+
+### Scheduling
+
+- APScheduler
+
+### Deployment
+
+- Render
 
 ---
 
 ## Project Structure
 
 ```
-Car-MPG-Predictor/
+smart-planner/
 │
-├── Automobile.csv              # Dataset
-├── Car_Price_Predictor.ipynb   # Training notebook
-├── car_mpg_model.pkl           # Trained Random Forest model
-├── origin_encoder.pkl          # Label encoder
+├── app.py
 ├── requirements.txt
+├── templates/
+│   ├── index.html
+│   ├── edit.html
+│   └── history.html
+├── utils/
+│   └── ai_scheduler.py
+├── static/
+├── instance/
+│   └── planner.db
 └── README.md
 ```
 
 ---
 
-## Dataset
+## Key Features
 
-The dataset contains information about automobiles including:
+### User Authentication
 
-- Cylinders
-- Displacement
-- Horsepower
-- Weight
-- Acceleration
-- Model Year
-- Origin
-
-Target Variable:
-
-- MPG (Miles Per Gallon)
+- User registration and login
+- Secure password hashing
+- Session management
+- Route protection
+- Logout functionality
 
 ---
 
-## Workflow
+### Task Management
 
-1. Load dataset
-2. Explore and visualize data
-3. Handle missing values
-4. Encode categorical features
-5. Split data into training and testing sets
-6. Train multiple regression models
-7. Compare performance
-8. Save the best model
-9. Make predictions on new data
+Users can
 
----
-
-## Exploratory Data Analysis
-
-The notebook includes:
-
-- MPG distribution
-- Weight vs MPG
-- Horsepower vs MPG
-- Correlation heatmap
-- MPG by number of cylinders
-- Prediction error distribution
+- Create tasks
+- Edit existing tasks
+- Delete tasks
+- Mark tasks as completed
+- Restore completed tasks
+- View task history
 
 ---
 
-## Machine Learning Models
+### AI-Based Scheduling
 
-### Linear Regression
+The planner recommends an appropriate completion time for each task based on its priority.
 
-Used as a baseline model.
+Example:
 
-### Random Forest Regressor
+| Priority | Suggested Time |
+|-----------|----------------|
+| High | As soon as possible |
+| Medium | Within the day |
+| Low | Flexible schedule |
 
-Selected as the final model due to better prediction accuracy and stronger generalization.
-
----
-
-## Evaluation Metrics
-
-The models were evaluated using:
-
-- Mean Absolute Error (MAE)
-- Mean Squared Error (MSE)
-- Root Mean Squared Error (RMSE)
-- R² Score
-
-The Random Forest model achieved the best overall performance.
+This helps users organize their workload more effectively.
 
 ---
 
-## Saved Model
+### Reminder System
 
-The trained model is stored using Joblib.
+A background scheduler periodically checks pending tasks and triggers reminders based on user-defined timings.
+
+Powered by **APScheduler**.
+
+---
+
+###  Personalized Dashboard
+
+Each user's tasks are securely isolated using database relationships.
+
+Every task is linked to its owner through a **user_id**, ensuring users can only access their own data.
+
+---
+
+## System Architecture
 
 ```
-car_mpg_model.pkl
+User
+   │
+   ▼
+HTML / CSS Interface
+   │
+   ▼
+Flask Application
+   │
+   ├── Authentication
+   ├── Task Management
+   ├── AI Scheduler
+   └── Reminder Service
+   │
+   ▼
+SQLite Database
 ```
 
-The label encoder is also saved:
+---
 
-```
-origin_encoder.pkl
-```
+## Database Schema
+
+### Users
+
+- id
+- username
+- password (hashed)
+
+### Tasks
+
+- id
+- title
+- priority
+- status
+- recommended_time
+- task_date
+- user_time
+- user_id
 
 ---
 
@@ -138,13 +174,13 @@ origin_encoder.pkl
 Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/car-mpg-predictor.git
+git clone https://github.com/Priyanshi248/smart-planner.git
 ```
 
 Move into the project
 
 ```bash
-cd car-mpg-predictor
+cd smart-planner
 ```
 
 Install dependencies
@@ -153,29 +189,57 @@ Install dependencies
 pip install -r requirements.txt
 ```
 
-Run the notebook
+Run the application
 
 ```bash
-jupyter notebook
+python app.py
+```
+
+Visit
+
+```
+http://127.0.0.1:5000
 ```
 
 ---
 
-## Sample Prediction
+## Screenshots
 
-Example input
+- Login Page
+<img width="712" height="541" alt="image" src="https://github.com/user-attachments/assets/2861641a-9e90-4b1b-9c91-7e5842b5f9ba" />
 
-| Feature | Value |
-|---------|------:|
-| Cylinders | 4 |
-| Displacement | 150 |
-| Horsepower | 100 |
-| Weight | 2500 |
-| Acceleration | 15 |
-| Model Year | 70 |
-| Origin | USA |
+- Dashboard
+<img width="1905" height="813" alt="image" src="https://github.com/user-attachments/assets/424fa139-d5a3-4849-a96f-11ecafac20ec" />
 
-The trained model predicts the expected MPG for the vehicle.
+- Task History
+<img width="1851" height="817" alt="image" src="https://github.com/user-attachments/assets/05ae3c5e-9cb5-4119-abf1-4cc47d6f88af" />
+
+---
+
+## Challenges Solved
+
+During development, several real-world issues were resolved:
+
+- Fixed database schema mismatch causing production errors
+- Added user-specific data isolation using `user_id`
+- Protected routes with session validation
+- Improved authentication workflow
+- Handled duplicate user registration gracefully
+- Integrated background scheduling with APScheduler
+- Resolved deployment issues on Render
+
+---
+
+## Future Improvements
+
+- 📧 Email reminders
+- 📱 SMS notifications
+- 📊 Productivity analytics dashboard
+- 🤖 AI-based priority prediction
+- 📅 Google Calendar integration
+- 🌙 Dark mode
+- 🐳 Docker support
+- 🔄 CI/CD pipeline
 
 ---
 
@@ -184,3 +248,7 @@ The trained model predicts the expected MPG for the vehicle.
 **Priyanshi Saxena**
 
 ---
+
+## ⭐ If you found this project useful
+
+Give the repository a ⭐ and feel free to fork it!

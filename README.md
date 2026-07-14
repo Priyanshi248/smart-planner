@@ -182,6 +182,5 @@ The trained model predicts the expected MPG for the vehicle.
 ## Author
 
 **Priyanshi Saxena**
-- GitHub: https://github.com/Priyanshi248
 
 ---

@@ -232,14 +232,14 @@ During development, several real-world issues were resolved:
 
 ## Future Improvements
 
-- 📧 Email reminders
-- 📱 SMS notifications
-- 📊 Productivity analytics dashboard
-- 🤖 AI-based priority prediction
-- 📅 Google Calendar integration
-- 🌙 Dark mode
-- 🐳 Docker support
-- 🔄 CI/CD pipeline
+- Email reminders
+- SMS notifications
+- Productivity analytics dashboard
+- AI-based priority prediction
+- Google Calendar integration
+- Dark mode
+- Docker support
+- CI/CD pipeline
 
 ---
 
@@ -247,8 +247,3 @@ During development, several real-world issues were resolved:
 
 **Priyanshi Saxena**
 
----
-
-## ⭐ If you found this project useful
-
-Give the repository a ⭐ and feel free to fork it!
